@@ -33,12 +33,27 @@ You need the [GitHub CLI](https://cli.github.com) installed first. Then install 
 gh extension install brpaz/gh-secrets-sync
 ```
 
-> [!WARNING]
-> Secrets are stored in the config file as plain text. Keep this file secure (permissions are set to `0600`).
-
 ## Usage
 
-After installing the extension, run `gh secrets-sync` to get started. A config file is created at `~/.config/gh-secrets-sync/secrets.yaml` if it doesn't exist.
+After installing the extension, run `gh secrets-sync` to get started. A config file is created at `~/.config/gh-secrets-sync/secrets.yaml` if it doesn't exist. This is where you will manage your secrets and their associated repositories.
+
+> [!WARNING]
+> Secrets are stored in the config file as plain text. Keep this file secure (permissions are set to `0600` by default).
+
+### Configuration File
+
+The config file has the following structure:
+
+```yaml
+secrets:
+  - name: "NPM_TOKEN"
+    value: "secret_value"
+    repositories:
+      - "owner/repo1"
+      - "owner/repo2"
+```
+
+Workflow: add secrets to the config file using `gh secrets-sync add`, then run `gh secrets-sync sync` to push them to GitHub.
 
 ### Commands
 
@@ -60,19 +75,6 @@ gh secrets-sync sync
 
 # Open config file in editor
 gh secrets-sync config
-```
-
-### Configuration File
-
-The config file has the following structure:
-
-```yaml
-secrets:
-  - name: "NPM_TOKEN"
-    value: "secret_value"
-    repositories:
-      - "owner/repo1"
-      - "owner/repo2"
 ```
 
 ### Options
