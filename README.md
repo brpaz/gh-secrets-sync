@@ -4,8 +4,8 @@
 
 <p align="center">
   
-![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/brpaz/gh-secrets-sync?style=for-the-badge)
-![Go Report Card](https://goreportcard.com/badge/github.com/brpaz/gh-secrets-sync?style=for-the-badge)
+![Go version](https://img.shields.io/github/go-mod/go-version/brpaz/gh-secrets-sync?style=for-the-badge)
+[![Go Report Card](https://goreportcard.com/badge/github.com/brpaz/gh-secrets-sync?style=for-the-badge)](https://goreportcard.com/report/github.com/brpaz/gh-secrets-sync)
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/brpaz/gh-secrets-sync/ci.yml?branch=main&style=for-the-badge)](https://github.com/brpaz/gh-secrets-sync/actions)
 [![License](https://img.shields.io/github/license/brpaz/gh-secrets-sync?style=for-the-badge)](./LICENSE)
 
