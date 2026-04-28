@@ -1,0 +1,63 @@
+# https://taskfile.dev
+
+version: "3"
+
+vars:
+  REPORTS_DIR: "reports"
+  VERSION:
+    sh: git describe --tags --always --dirty || echo "n/a"
+  DATE:
+    sh: date -u +%Y-%m-%dT%H:%M:%SZ
+  COMMIT:
+    sh: git rev-parse --short HEAD || echo "n/a"
+
+dotenv:
+  - .env
+  - .env.local
+
+tasks:
+  default:
+    cmds:
+      - task -l
+
+  ensure_reports_dir:
+    desc: Ensure reports directory exists
+    internal: true
+    cmds:
+      - mkdir -p {{ .REPORTS_DIR }}
+
+  lint:
+    desc: Run GolangCI-Lint
+    cmds:
+      - golangci-lint run
+
+  lint-fix:
+    desc: Run GolangCI-Lint with auto-fix
+    cmds:
+      - golangci-lint run --fix
+
+  test:
+    desc: Run unit tests
+    deps:
+      - ensure_reports_dir
+    cmds:
+      - |
+        gotestsum \
+          --format testname \
+          --jsonfile {{ .REPORTS_DIR }}/test-result.json \
+          --  -coverprofile={{ .REPORTS_DIR }}/coverage.out -covermode=atomic ./...
+
+  gomod:
+    desc: Download Go modules
+    cmds:
+      - go mod download && go mod tidy
+
+  docs-build:
+    desc: Build documentation site
+    cmds:
+      - mkdocs build
+
+  snapshot:
+    desc: Create a snapshot build
+    cmds:
+      - goreleaser release --snapshot --skip-publish --rm-dist
