@@ -2,14 +2,14 @@
 
 > Github CLI extension that syncs GitHub secrets across different repositories.
 
-<p align="center">
-  
+<div align="center">
+
 ![Go version](https://img.shields.io/github/go-mod/go-version/brpaz/gh-secrets-sync?style=for-the-badge)
 [![Go Report Card](https://goreportcard.com/badge/github.com/brpaz/gh-secrets-sync?style=for-the-badge)](https://goreportcard.com/report/github.com/brpaz/gh-secrets-sync)
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/brpaz/gh-secrets-sync/ci.yml?branch=main&style=for-the-badge)](https://github.com/brpaz/gh-secrets-sync/actions)
 [![License](https://img.shields.io/github/license/brpaz/gh-secrets-sync?style=for-the-badge)](./LICENSE)
 
-</p>
+</div>
 
 ## 🎯 Motivation
 
@@ -27,11 +27,14 @@ That´s why I decided to build this tool, to simplify this process and have a ce
 
 ### Installation
 
-You can install `gh-secrets-sync` using the GitHub CLI:
+You need the [GitHub CLI](https://cli.github.com) installed first. Then install `gh-secrets-sync`:
 
 ```bash
 gh extension install brpaz/gh-secrets-sync
 ```
+
+> [!WARNING]
+> Secrets are stored in the config file as plain text. Keep this file secure (permissions are set to `0600`).
 
 ## Usage
 
