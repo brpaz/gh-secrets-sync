@@ -12,7 +12,7 @@ on:
     types: [published]
 
 env:
-  GOLANGCI_VERSION: v2.11.14
+  GOLANGCI_VERSION: v2.11.4
   GOTESTSUM_VERSION: v1.13.0
 
 concurrency:
