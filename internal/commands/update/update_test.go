@@ -1,0 +1,74 @@
+package update_test
+
+import (
+	"strings"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"github.com/urfave/cli/v3"
+
+	updatecmd "github.com/brpaz/gh-secrets-sync/internal/commands/update"
+	"github.com/brpaz/gh-secrets-sync/internal/config"
+	"github.com/brpaz/gh-secrets-sync/internal/testutils"
+)
+
+func TestNew(t *testing.T) {
+	cmd := updatecmd.New()
+	assert.IsType(t, cmd, &cli.Command{})
+}
+
+func TestUpdateCommand(t *testing.T) {
+	t.Run("updates value", func(t *testing.T) {
+		cfgPath := testutils.SetupConfig(t, &config.Config{
+			Secrets: []config.Secret{
+				{Name: "MY_TOKEN", Value: "old", Repositories: []string{"owner/repo"}},
+			},
+		})
+
+		var out strings.Builder
+		cmd := updatecmd.New()
+		cmd.Writer = &out
+
+		err := cmd.Run(t.Context(), []string{"update", "--name", "MY_TOKEN", "--value", "newval", "--repos", "owner/repo"})
+		require.NoError(t, err)
+		assert.Contains(t, out.String(), "MY_TOKEN")
+
+		loaded, err := config.Load(cfgPath)
+		require.NoError(t, err)
+		require.Len(t, loaded.Secrets, 1)
+		assert.Equal(t, "newval", loaded.Secrets[0].Value)
+		assert.Equal(t, []string{"owner/repo"}, loaded.Secrets[0].Repositories)
+	})
+
+	t.Run("updates repos while keeping existing value", func(t *testing.T) {
+		cfgPath := testutils.SetupConfig(t, &config.Config{
+			Secrets: []config.Secret{
+				{Name: "MY_TOKEN", Value: "secret", Repositories: []string{"owner/repo1"}},
+			},
+		})
+
+		cmd := updatecmd.New()
+		// Pass --value with the current value so the survey is not triggered.
+		err := cmd.Run(t.Context(), []string{"update", "--name", "MY_TOKEN", "--value", "secret", "--repos", "owner/repo2,owner/repo3"})
+		require.NoError(t, err)
+
+		loaded, err := config.Load(cfgPath)
+		require.NoError(t, err)
+		assert.Equal(t, "secret", loaded.Secrets[0].Value)
+		assert.Equal(t, []string{"owner/repo2", "owner/repo3"}, loaded.Secrets[0].Repositories)
+	})
+
+	t.Run("errors when secret not found", func(t *testing.T) {
+		testutils.SetupConfig(t, &config.Config{
+			Secrets: []config.Secret{
+				{Name: "OTHER", Value: "val", Repositories: []string{"owner/repo"}},
+			},
+		})
+
+		cmd := updatecmd.New()
+		err := cmd.Run(t.Context(), []string{"update", "--name", "MISSING", "--value", "x", "--repos", "owner/repo"})
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "MISSING")
+	})
+}

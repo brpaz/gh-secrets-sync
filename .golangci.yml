@@ -9,6 +9,10 @@ linters:
   settings:
     gocyclo:
       min-complexity: 20
+    errcheck:
+      exclude-functions:
+        - fmt.Fprintf
+        - fmt.Fprintln
 
 formatters:
   enable:
@@ -19,6 +23,7 @@ formatters:
       sections:
         - standard
         - default
+        - blank
         - prefix(github.com/brpaz/gh-secrets-sync)
         - blank
         - dot
