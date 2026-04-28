@@ -19,11 +19,11 @@ builds:
       - windows
       - darwin
     ldflags:
-      - -w -s
-      - -X github.com/brpaz/gh-secrets-sync/cmd/gh-secrets-sync/main.Version={{ .Version }}
-      - -X github.com/brpaz/gh-secrets-sync/cmd/gh-secrets-sync/main.BuildDate={{ .Date }}
-      - -X github.com/brpaz/gh-secrets-sync/cmd/gh-secrets-sync/main.Commit={{ .Commit }}
-    main: cmd/gh-secrets-sync/main.go
+      - -s -w
+      - -X main.Version={{.Version}}
+      - -X main.BuildDate={{.Date}}
+      - -X main.Commit={{.Commit}}
+    main: ./cmd/gh-secrets-sync
 
 archives:
   - formats:

@@ -1,11 +1,15 @@
 # gh-secrets-sync
 
+> Github CLI extension that syncs GitHub secrets across different repositories.
+
+<p align="center">
+  
 ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/brpaz/gh-secrets-sync?style=for-the-badge)
 ![Go Report Card](https://goreportcard.com/badge/github.com/brpaz/gh-secrets-sync?style=for-the-badge)
-![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/brpaz/brpaz/gh-secrets-sync/ci.yml?branch=main&style=for-the-badge)](https://github.com/brpaz/gh-secrets-sync/actions)
-![License](https://img.shields.io/github/license/brpaz/gh-secrets-sync?style=for-the-badge)](./LICENSE)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/brpaz/gh-secrets-sync/ci.yml?branch=main&style=for-the-badge)](https://github.com/brpaz/gh-secrets-sync/actions)
+[![License](https://img.shields.io/github/license/brpaz/gh-secrets-sync?style=for-the-badge)](./LICENSE)
 
-> Github CLI extension that syncs GitHub secrets across different repositories.
+</p>
 
 ## 🎯 Motivation
 
@@ -31,18 +35,51 @@ gh extension install brpaz/gh-secrets-sync
 
 ## Usage
 
-After installing the extension, you can start it using `gh secrets-sync` command. At startup, the extension will create a configuration file at `~/.config/gh-secrets-sync/secrets.yaml` if it doesn't exist. This is the file were you will place your secrets.
+After installing the extension, run `gh secrets-sync` to get started. A config file is created at `~/.config/gh-secrets-sync/secrets.yaml` if it doesn't exist.
 
-The configuration file should have the following structure:
+### Commands
+
+```bash
+# Add a new secret
+gh secrets-sync add --name NPM_TOKEN --value s3cr3t --repos myorg/api,myorg/web
+
+# List all configured secrets
+gh secrets-sync list
+
+# Update an existing secret
+gh secrets-sync update --name NPM_TOKEN --value newvalue
+
+# Delete a secret
+gh secrets-sync delete --name NPM_TOKEN
+
+# Sync all secrets to their repositories
+gh secrets-sync sync
+
+# Open config file in editor
+gh secrets-sync config
+```
+
+### Configuration File
+
+The config file has the following structure:
 
 ```yaml
 secrets:
-  - name: "SECRET_NAME"
-    value: "SECRET_VALUE"
-    target_name: "SECRET_NAME_IN_GITHUB"
+  - name: "NPM_TOKEN"
+    value: "secret_value"
     repositories:
       - "owner/repo1"
-      - "owner/repo2"    
+      - "owner/repo2"
+```
+
+### Options
+
+All commands support these global options:
+
+| Flag | Description |
+|------|-------------|
+| `--config` | Path to config file (default: `~/.config/gh-secrets-sync/secrets.yaml`) |
+| `--version` | Show version info |    
     
 ## 🤝 Contributing
 
