@@ -8,9 +8,9 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/brpaz/gh-secrets-sync/internal/cmdutil"
-
 	"github.com/urfave/cli/v3"
+
+	"github.com/brpaz/gh-secrets-sync/internal/cmdutil"
 )
 
 // resolveEditor returns the value of $EDITOR, or the platform default when the

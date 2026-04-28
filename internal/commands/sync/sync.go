@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/urfave/cli/v3"
+
 	"github.com/brpaz/gh-secrets-sync/internal/cmdutil"
 	"github.com/brpaz/gh-secrets-sync/internal/config"
 	"github.com/brpaz/gh-secrets-sync/internal/gh"
-
-	"github.com/urfave/cli/v3"
 )
 
 // GitHubClient is the interface this command requires from the GitHub client.

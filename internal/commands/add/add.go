@@ -6,10 +6,10 @@ import (
 	"strings"
 
 	"github.com/AlecAivazis/survey/v2"
+	"github.com/urfave/cli/v3"
+
 	"github.com/brpaz/gh-secrets-sync/internal/cmdutil"
 	"github.com/brpaz/gh-secrets-sync/internal/config"
-
-	"github.com/urfave/cli/v3"
 )
 
 const (
