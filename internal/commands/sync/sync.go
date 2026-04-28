@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/urfave/cli/v3"
-
+	"github.com/brpaz/gh-secrets-sync/internal/cmdutil"
 	"github.com/brpaz/gh-secrets-sync/internal/config"
 	"github.com/brpaz/gh-secrets-sync/internal/gh"
+
+	"github.com/urfave/cli/v3"
 )
 
 // GitHubClient is the interface this command requires from the GitHub client.
@@ -48,7 +49,7 @@ func New(client GitHubClient) *cli.Command {
 
 func runAction(client GitHubClient) cli.ActionFunc {
 	return func(ctx context.Context, cmd *cli.Command) error {
-		path, err := config.DefaultConfigPath()
+		path, err := cmdutil.ConfigPath(cmd)
 		if err != nil {
 			return err
 		}

@@ -58,7 +58,7 @@ Owns the `Config` and `Secret` types and all YAML file operations:
 
 | Function | Description |
 |---|---|
-| `DefaultConfigPath()` | Returns the OS-appropriate config path (`~/.config/gh-secrets-sync/secrets.yaml`) |
+| `DefaultConfigPath()` | Returns config path, checking `GH_SECRETS_SYNC_CONFIG_FILE` env var first |
 | `EnsureConfigExists()` | Creates the file with a skeleton YAML if it does not exist |
 | `Load()` | Reads and unmarshals the YAML config |
 | `Config.Save()` | Marshals and writes the config back to disk |

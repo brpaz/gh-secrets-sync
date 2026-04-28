@@ -45,7 +45,7 @@ func New() *cli.Command {
 }
 
 func run(_ context.Context, cmd *cli.Command) error {
-	path, err := config.DefaultConfigPath()
+	path, err := cmdutil.ConfigPath(cmd)
 	if err != nil {
 		return err
 	}

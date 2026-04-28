@@ -60,4 +60,4 @@ tasks:
   snapshot:
     desc: Create a snapshot build
     cmds:
-      - goreleaser release --snapshot --skip-publish --rm-dist
+      - goreleaser release --clean --snapshot

@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	cli "github.com/urfave/cli/v3"
+
 	addcmd "github.com/brpaz/gh-secrets-sync/internal/commands/add"
 	configcmd "github.com/brpaz/gh-secrets-sync/internal/commands/configeditor"
 	deletecmd "github.com/brpaz/gh-secrets-sync/internal/commands/delete"
@@ -13,8 +15,6 @@ import (
 	updatecmd "github.com/brpaz/gh-secrets-sync/internal/commands/update"
 	"github.com/brpaz/gh-secrets-sync/internal/config"
 	"github.com/brpaz/gh-secrets-sync/internal/gh"
-
-	cli "github.com/urfave/cli/v3"
 )
 
 // App is the composition root for the gh-secrets-sync CLI. It holds all

@@ -1,7 +1,12 @@
 // Package cmdutil provides small helpers shared across CLI command packages.
 package cmdutil
 
-import "strings"
+import (
+	"strings"
+
+	"github.com/brpaz/gh-secrets-sync/internal/config"
+	"github.com/urfave/cli/v3"
+)
 
 // SplitRepos flattens a slice of possibly comma-separated repository strings
 // into individual trimmed, non-empty values. It handles both repeated flag
@@ -18,4 +23,13 @@ func SplitRepos(raw []string) []string {
 		}
 	}
 	return repos
+}
+
+// ConfigPath returns the config path from the CLI command's --config flag,
+// or falls back to config.DefaultConfigPath.
+func ConfigPath(cmd *cli.Command) (string, error) {
+	if path := cmd.String("config"); path != "" {
+		return path, nil
+	}
+	return config.DefaultConfigPath()
 }

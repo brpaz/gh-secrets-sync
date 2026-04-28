@@ -14,6 +14,9 @@ const (
 	// ConfigFileName is the name of the config file.
 	ConfigFileName = "secrets.yaml"
 
+	// EnvConfigFile is the environment variable that overrides the config file path.
+	EnvConfigFile = "GH_SECRETS_SYNC_CONFIG_FILE"
+
 	// dirPerm is the permission mode for the config directory.
 	dirPerm = 0o700
 	// filePerm is the permission mode for the config file.
@@ -56,9 +59,15 @@ type Config struct {
 // DefaultConfigPath returns the OS-appropriate path for the secrets.yaml
 // config file, using os.UserConfigDir() for cross-platform compatibility.
 //
+// It checks for the GH_SECRETS_SYNC_CONFIG_FILE environment variable first.
+//
 // Linux/macOS: ~/.config/gh-secrets-sync/secrets.yaml
 // Windows:     %APPDATA%\gh-secrets-sync\secrets.yaml
 func DefaultConfigPath() (string, error) {
+	if path := os.Getenv(EnvConfigFile); path != "" {
+		return path, nil
+	}
+
 	dir, err := os.UserConfigDir()
 	if err != nil {
 		return "", fmt.Errorf("could not determine user config directory: %w", err)

@@ -20,19 +20,18 @@ builds:
       - darwin
     ldflags:
       - -w -s
-      - -X github.com/brpaz/gh-secrets-sync/cmd/main.Version={{ .Version }}
-      - -X github.com/brpaz/gh-secrets-sync/cmd/main.BuildDate={{ .Date }}
-      - -X github.com/brpaz/gh-secrets-sync/cmd/main.Commit={{ .Commit }}
-    main: cmd/main.go
+      - -X github.com/brpaz/gh-secrets-sync/cmd/gh-secrets-sync/main.Version={{ .Version }}
+      - -X github.com/brpaz/gh-secrets-sync/cmd/gh-secrets-sync/main.BuildDate={{ .Date }}
+      - -X github.com/brpaz/gh-secrets-sync/cmd/gh-secrets-sync/main.Commit={{ .Commit }}
+    main: cmd/gh-secrets-sync/main.go
 
 archives:
   - formats:
       - binary
-    name_template: "gh-dash_{{ .Tag }}_{{ .Os }}-{{ .Arch }}{{if .Arm}}_{{.Arm}}{{end}}"
+    name_template: "gh-secrets-sync_{{ .Tag }}_{{ .Os }}-{{ .Arch }}{{if .Arm}}_{{.Arm}}{{end}}"
 checksum:
   name_template: "checksums.txt"
 snapshot:
   version_template: "{{ incpatch .Version }}-next"
-
 release:
   mode: keep-existing

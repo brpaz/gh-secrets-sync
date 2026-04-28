@@ -8,6 +8,9 @@ const (
 	Name      = "gh-secrets-sync"
 	usage     = "Github CLI extension that syncs GitHub secrets across different repositories"
 	usageText = "gh secrets-sync <command> [options]\n\nManage a local secrets config file and push those secrets to one or more\nGitHub repositories via the GitHub API.\n\nOn first run a config file is created automatically. Edit it directly with\n'gh secrets-sync config', or use the add / update / delete sub-commands.\nOnce your secrets are configured, run 'gh secrets-sync sync' to push them."
+
+	// FlagConfig is the name of the global --config flag.
+	FlagConfig = "config"
 )
 
 // options holds the configuration for the root command.
@@ -53,5 +56,12 @@ func New(opts ...Option) *cli.Command {
 		EnableShellCompletion: true,
 		Before:                o.onInitFn,
 		Commands:              o.commands,
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:     FlagConfig,
+				Usage:    "Path to the config file (default: ~/.config/gh-secrets-sync/secrets.yaml)",
+				Category: "Configuration",
+			},
+		},
 	}
 }

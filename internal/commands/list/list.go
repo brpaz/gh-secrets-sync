@@ -7,9 +7,10 @@ import (
 	"text/tabwriter"
 
 	"github.com/AlecAivazis/survey/v2"
-	"github.com/urfave/cli/v3"
-
+	"github.com/brpaz/gh-secrets-sync/internal/cmdutil"
 	"github.com/brpaz/gh-secrets-sync/internal/config"
+
+	"github.com/urfave/cli/v3"
 )
 
 const (
@@ -41,7 +42,7 @@ func New() *cli.Command {
 }
 
 func run(_ context.Context, cmd *cli.Command) error {
-	path, err := config.DefaultConfigPath()
+	path, err := cmdutil.ConfigPath(cmd)
 	if err != nil {
 		return err
 	}

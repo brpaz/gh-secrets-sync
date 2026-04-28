@@ -8,9 +8,9 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/urfave/cli/v3"
+	"github.com/brpaz/gh-secrets-sync/internal/cmdutil"
 
-	"github.com/brpaz/gh-secrets-sync/internal/config"
+	"github.com/urfave/cli/v3"
 )
 
 // resolveEditor returns the value of $EDITOR, or the platform default when the
@@ -67,8 +67,8 @@ func New() *cli.Command {
 		Name:      name,
 		Usage:     usage,
 		UsageText: usageText,
-		Action: func(ctx context.Context, _ *cli.Command) error {
-			path, err := config.DefaultConfigPath()
+		Action: func(ctx context.Context, cmd *cli.Command) error {
+			path, err := cmdutil.ConfigPath(cmd)
 			if err != nil {
 				return err
 			}
