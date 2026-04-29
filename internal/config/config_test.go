@@ -305,6 +305,19 @@ func TestUpdateSecret(t *testing.T) {
 		assert.Equal(t, []string{"owner/repo2"}, cfg.Secrets[0].Repositories)
 	})
 
+	t.Run("allows clearing repos to empty", func(t *testing.T) {
+		t.Parallel()
+
+		cfg := &config.Config{
+			Secrets: []config.Secret{{Name: "FOO", Value: "old", Repositories: []string{"owner/repo1"}}},
+		}
+
+		err := cfg.UpdateSecret("FOO", config.Secret{Repositories: []string{}})
+		require.NoError(t, err)
+		assert.Equal(t, "old", cfg.Secrets[0].Value, "value must be unchanged")
+		assert.Empty(t, cfg.Secrets[0].Repositories)
+	})
+
 	t.Run("updates both value and repos", func(t *testing.T) {
 		t.Parallel()
 
