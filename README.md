@@ -118,8 +118,6 @@ This command:
 gh secrets-sync edit --name NPM_TOKEN
 ```
 
-When editing interactively, the current value stays masked, while the current repository list is shown as a pre-filled comma-separated value.
-
 ### Options
 
 All commands support these global options:
@@ -144,8 +142,6 @@ If you find this project helpful and would like to support its development, ther
 ## 👱 Contributors
 
 - [Bruno Paz](https://brunopaz.dev) - Creator and maintainer
-
-## ❤️ Acknowledgements
 
 ## 📃 License
 
