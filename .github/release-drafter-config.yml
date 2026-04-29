@@ -1,5 +1,9 @@
 name-template: "$RESOLVED_VERSION"
 tag-template: "v$RESOLVED_VERSION"
+change-template: "- $TITLE @$AUTHOR (#$NUMBER)"
+change-title-escapes: '\\<*_&' # You can add # and @ to disable mentions, and add ` to disable code blocks.
+exclude-labels:
+  - "skip-changelog"
 categories:
   - title: "Breaking Changes"
     labels:
@@ -27,10 +31,6 @@ categories:
       - deps
       - dependencies
     collapse-after: 5
-change-template: "- $TITLE @$AUTHOR (#$NUMBER)"
-change-title-escapes: '\\<*_&' # You can add # and @ to disable mentions, and add ` to disable code blocks.
-exclude-labels:
-  - "skip-changelog"
 version-resolver:
   major:
     labels:
@@ -48,6 +48,57 @@ version-resolver:
       - "deps"
       - "security"
       - "docs"
+autolabeler:
+  - label: breaking
+    title:
+      - '/^[a-z]+(\(.+\))?!:/'
+      - "/^BREAKING CHANGE:/i"
+    branch:
+      - '/^breaking\/.+/'
+
+  - label: feature
+    title:
+      - '/^feat(\(.+\))?:/'
+    branch:
+      - '/^feat(ure)?\/.+/'
+
+  - label: bug
+    title:
+      - '/^fix(\(.+\))?:/'
+    branch:
+      - '/^(fix|bugfix|hotfix)\/.+/'
+
+  - label: security
+    title:
+      - '/^(fix|feat)(\(.+\))?.*security/i'
+    branch:
+      - '/^security\/.+/'
+
+  - label: docs
+    title:
+      - '/^docs(\(.+\))?:/'
+    branch:
+      - '/^docs?\/.+/'
+
+  - label: maintenance
+    title:
+      - '/^(chore|refactor|style|test|build|ci)(\(.+\))?:/'
+    branch:
+      - '/^(chore|refactor|ci)\/.+/'
+
+  - label: performance
+    title:
+      - '/^perf(\(.+\))?:/'
+    branch:
+      - '/^perf(ormance)?\/.+/'
+
+  - label: dependencies
+    branch:
+      - '/^(deps?|dependabot|renovate)\/.+/'
+    files:
+      - "go.mod"
+      - "go.sum"
+
 template: |
   # What's Changed
   $CHANGES
