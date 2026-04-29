@@ -33,4 +33,4 @@ tmp/
 # Log files
 *.log
 
-gh-secrets-sync
+./gh-secrets-sync
