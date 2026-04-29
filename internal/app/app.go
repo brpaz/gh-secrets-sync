@@ -7,12 +7,13 @@ import (
 	cli "github.com/urfave/cli/v3"
 
 	addcmd "github.com/brpaz/gh-secrets-sync/internal/commands/add"
+	attachcmd "github.com/brpaz/gh-secrets-sync/internal/commands/attach"
 	configcmd "github.com/brpaz/gh-secrets-sync/internal/commands/configeditor"
 	deletecmd "github.com/brpaz/gh-secrets-sync/internal/commands/delete"
+	editcmd "github.com/brpaz/gh-secrets-sync/internal/commands/edit"
 	listcmd "github.com/brpaz/gh-secrets-sync/internal/commands/list"
 	rootcmd "github.com/brpaz/gh-secrets-sync/internal/commands/root"
 	synccmd "github.com/brpaz/gh-secrets-sync/internal/commands/sync"
-	updatecmd "github.com/brpaz/gh-secrets-sync/internal/commands/update"
 	"github.com/brpaz/gh-secrets-sync/internal/config"
 	"github.com/brpaz/gh-secrets-sync/internal/gh"
 )
@@ -70,11 +71,12 @@ func (app *App) Run(ctx context.Context, args []string) error {
 		rootcmd.WithVersion(app.Info.String()),
 		rootcmd.WithOnInit(onInit),
 		rootcmd.WithCommand(addcmd.New()),
+		rootcmd.WithCommand(attachcmd.New(app.GitHubClient)),
 		rootcmd.WithCommand(configcmd.New()),
 		rootcmd.WithCommand(deletecmd.New()),
 		rootcmd.WithCommand(listcmd.New()),
 		rootcmd.WithCommand(synccmd.New(app.GitHubClient)),
-		rootcmd.WithCommand(updatecmd.New()),
+		rootcmd.WithCommand(editcmd.New()),
 	)
 
 	return root.Run(ctx, args)

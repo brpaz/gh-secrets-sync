@@ -123,7 +123,8 @@ func (cfg *Config) AddSecret(s Secret, force bool) error {
 
 // UpdateSecret updates an existing secret by name. Only non-zero fields in
 // patch are applied: if patch.Value is non-empty it replaces the current value;
-// if patch.Repositories is non-nil/non-empty it replaces the current repo list.
+// if patch.Repositories is non-nil it replaces the current repo list, including
+// with an explicit empty slice.
 // Returns an error if no secret with the given name exists.
 func (cfg *Config) UpdateSecret(name string, patch Secret) error {
 	for i, existing := range cfg.Secrets {
@@ -131,7 +132,7 @@ func (cfg *Config) UpdateSecret(name string, patch Secret) error {
 			if patch.Value != "" {
 				cfg.Secrets[i].Value = patch.Value
 			}
-			if len(patch.Repositories) > 0 {
+			if patch.Repositories != nil {
 				cfg.Secrets[i].Repositories = patch.Repositories
 			}
 			return nil

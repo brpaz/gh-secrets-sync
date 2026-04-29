@@ -25,11 +25,12 @@ internal/
   commands/               # One sub-package per CLI sub-command
     root/                 # Root command definition (name, version, Before hook)
     add/                  # gh secrets-sync add
+    attach/               # gh secrets-sync attach
     configeditor/         # gh secrets-sync config  (opens editor)
     delete/               # gh secrets-sync delete
+    edit/                 # gh secrets-sync edit
     list/                 # gh secrets-sync list
     sync/                 # gh secrets-sync sync
-    update/               # gh secrets-sync update
   config/                 # YAML config file I/O and domain types (Config, Secret)
   gh/                     # Thin wrapper around the gh CLI (Client, Executor interface)
   cmdutil/                # Shared CLI helpers (e.g. SplitRepos)
@@ -50,7 +51,11 @@ Defines the root `*cli.Command` using the [urfave/cli v3](https://github.com/urf
 
 ### `internal/commands/*`
 
-Each sub-command package exposes a single `New() *cli.Command` constructor that is self-contained: it loads the config file from the default path, performs its operation, and saves the result. Sub-commands do **not** receive shared state through the context — they rely on the config file as the single source of truth.
+Each sub-command package exposes a `New(...) *cli.Command` constructor. Config-focused commands load the config file, perform their operation, and save the result. Commands that need GitHub API interactions, such as `sync` and `attach`, receive a `gh.Client` dependency from `internal/app`.
+
+- `add` creates a new secret entry. Repositories are prompted for interactively when omitted, but they are optional; a secret may be stored with an empty repository list and will then be skipped by `sync`.
+- `edit` updates an existing secret. It can keep the current value, prefill the current repository list in the prompt, and explicitly clear repositories to an empty list.
+- `attach` resolves the current repository through the injected GitHub client, lets the user interactively select existing secrets, persists that repository into the selected secrets, and immediately syncs those secrets only to the current repository.
 
 ### `internal/config`
 
@@ -63,12 +68,12 @@ Owns the `Config` and `Secret` types and all YAML file operations:
 | `Load()` | Reads and unmarshals the YAML config |
 | `Config.Save()` | Marshals and writes the config back to disk |
 | `Config.AddSecret()` | Adds a secret, with optional force-overwrite |
-| `Config.UpdateSecret()` | Patches value and/or repositories of an existing secret |
+| `Config.UpdateSecret()` | Patches value and/or repositories of an existing secret, including clearing repositories to an empty list |
 | `Config.DeleteSecret()` | Removes a secret by name |
 
 ### `internal/gh`
 
-Wraps the `gh` CLI binary via [cli/go-gh](https://github.com/cli/go-gh). The `Client` embeds an `Executor` interface so the real subprocess can be swapped out in tests. `NewClient` verifies that the `gh` binary is available before returning.
+Wraps the `gh` CLI binary via [cli/go-gh](https://github.com/cli/go-gh). The `Client` embeds an `Executor` interface so the real subprocess can be swapped out in tests. `NewClient` verifies that the `gh` binary is available before returning. Besides syncing repository secrets, the client also exposes current-repository discovery used by the `attach` command.
 
 ### `internal/cmdutil`
 
@@ -89,9 +94,26 @@ main.go
                  └─ gh.Client            # call `gh secret set` via gh CLI
 ```
 
+Example interactive attach flow:
+
+```
+User runs: gh secrets-sync attach
+
+main.go
+  └─ app.App.Run(ctx, args)
+       ├─ root.New(...)                   # build *cli.Command tree
+       │    └─ onInit Before hook         # ensure config file exists
+       └─ attach.New(ghClient).Run(...)
+            ├─ config.Load(path)          # read secrets.yaml
+            ├─ gh.Client.CurrentRepository(ctx)
+            ├─ survey.MultiSelect         # choose existing secrets
+            ├─ config.Save(path)          # persist repo attachment first
+            └─ gh.Client.UpsertRepoSecret # sync each selected secret to current repo
+```
+
 ## Testing Approach
 
-- Every package has a `_test.go` file using the external test package convention (`package foo_test`).
+- Most packages use the external test package convention (`package foo_test`).
 - Tests use [testify](https://github.com/stretchr/testify) (`assert` / `require`) and Go subtests (`t.Run`) with `t.Parallel()`.
-- `internal/testutils` provides `SetupConfig` which writes a temporary config file and sets `GH_SECRETS_SYNC_CONFIG` so commands pick it up without touching real user state.
+- `internal/testutils` provides `SetupConfig` which writes a temporary config file and sets `GH_SECRETS_SYNC_CONFIG_FILE` so commands pick it up without touching real user state.
 - The `gh.Executor` interface allows `gh.Client` to be exercised in unit tests without a real `gh` binary.

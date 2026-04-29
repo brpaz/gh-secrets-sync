@@ -86,3 +86,60 @@ func TestUpsertRepoSecret(t *testing.T) {
 		exec.AssertExpectations(t)
 	})
 }
+
+func TestCurrentRepository(t *testing.T) {
+	t.Run("success", func(t *testing.T) {
+		t.Parallel()
+
+		exec := &mockExecutor{}
+		exec.On("Path").Return("/usr/local/bin/gh", nil)
+		exec.On("ExecContext", mock.Anything,
+			[]string{"repo", "view", "--json", "nameWithOwner", "--jq", ".nameWithOwner"},
+		).Return("myorg/myrepo\n", "", nil)
+
+		client, err := gh.NewClient(gh.WithExecutor(exec))
+		require.NoError(t, err)
+
+		repo, err := client.CurrentRepository(context.Background())
+		require.NoError(t, err)
+		assert.Equal(t, "myorg/myrepo", repo)
+		exec.AssertExpectations(t)
+	})
+
+	t.Run("exec error uses stderr", func(t *testing.T) {
+		t.Parallel()
+
+		exec := &mockExecutor{}
+		exec.On("Path").Return("/usr/local/bin/gh", nil)
+		exec.On("ExecContext", mock.Anything,
+			[]string{"repo", "view", "--json", "nameWithOwner", "--jq", ".nameWithOwner"},
+		).Return("", "not a git repository", errors.New("exit status 1"))
+
+		client, err := gh.NewClient(gh.WithExecutor(exec))
+		require.NoError(t, err)
+
+		_, err = client.CurrentRepository(context.Background())
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "failed to determine current repository")
+		assert.Contains(t, err.Error(), "not a git repository")
+		exec.AssertExpectations(t)
+	})
+
+	t.Run("empty output errors", func(t *testing.T) {
+		t.Parallel()
+
+		exec := &mockExecutor{}
+		exec.On("Path").Return("/usr/local/bin/gh", nil)
+		exec.On("ExecContext", mock.Anything,
+			[]string{"repo", "view", "--json", "nameWithOwner", "--jq", ".nameWithOwner"},
+		).Return("", "", nil)
+
+		client, err := gh.NewClient(gh.WithExecutor(exec))
+		require.NoError(t, err)
+
+		_, err = client.CurrentRepository(context.Background())
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "empty gh output")
+		exec.AssertExpectations(t)
+	})
+}

@@ -7,7 +7,7 @@ import (
 const (
 	Name      = "gh-secrets-sync"
 	usage     = "Github CLI extension that syncs GitHub secrets across different repositories"
-	usageText = "gh secrets-sync <command> [options]\n\nManage a local secrets config file and push those secrets to one or more\nGitHub repositories via the GitHub API.\n\nOn first run a config file is created automatically. Edit it directly with\n'gh secrets-sync config', or use the add / update / delete sub-commands.\nOnce your secrets are configured, run 'gh secrets-sync sync' to push them."
+	usageText = "gh secrets-sync <command> [options]\n\nManage a local secrets config file and push those secrets to one or more\nGitHub repositories via the GitHub API.\n\nOn first run a config file is created automatically. Edit it directly with\n'gh secrets-sync config', or use the add / attach / edit / delete sub-commands.\nOnce your secrets are configured, run 'gh secrets-sync sync' to push them."
 
 	// FlagConfig is the name of the global --config flag.
 	FlagConfig = "config"

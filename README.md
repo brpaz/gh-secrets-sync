@@ -20,8 +20,9 @@ That´s why I decided to build this tool, to simplify this process and have a ce
 ## 🗃️ Features
 
 - Secrets are stored in a local configuration file.
-- Commands to add, update, and delete secrets from the configuration file, simplify the management process.
-- Sync command to propagate changes to all repositories that are using the secrets, ensuring that all repositories are always up-to-date with the latest secrets.
+- Commands to add, edit, attach, list, and delete secrets from the configuration file.
+- Sync command to propagate changes to all configured repositories.
+- Interactive attach flow to add existing secrets to the current repository and sync them immediately.
 
 ## 🚀 Getting Started
 
@@ -55,17 +56,25 @@ secrets:
 
 Workflow: add secrets to the config file using `gh secrets-sync add`, then run `gh secrets-sync sync` to push them to GitHub.
 
+If a secret has an empty `repositories` list, it stays in the config file but is skipped by `gh secrets-sync sync` until you add repositories later.
+
 ### Commands
 
 ```bash
 # Add a new secret
 gh secrets-sync add --name NPM_TOKEN --value s3cr3t --repos myorg/api,myorg/web
 
+# Add a new secret without sync targets yet
+gh secrets-sync add --name SHARED_TOKEN --value s3cr3t
+
 # List all configured secrets
 gh secrets-sync list
 
-# Update an existing secret
-gh secrets-sync update --name NPM_TOKEN --value newvalue
+# Edit an existing secret
+gh secrets-sync edit --name NPM_TOKEN --value newvalue
+
+# Attach existing secrets to the current repository and sync them immediately
+gh secrets-sync attach
 
 # Delete a secret
 gh secrets-sync delete --name NPM_TOKEN
@@ -76,6 +85,40 @@ gh secrets-sync sync
 # Open config file in editor
 gh secrets-sync config
 ```
+
+### Common workflows
+
+#### Add a secret now, choose repositories later
+
+```bash
+gh secrets-sync add --name NPM_TOKEN --value s3cr3t
+gh secrets-sync list
+gh secrets-sync edit --name NPM_TOKEN --repos myorg/api,myorg/web
+gh secrets-sync sync
+```
+
+#### Attach existing secrets to the repo you are currently in
+
+Run this from inside a GitHub repository checkout:
+
+```bash
+gh secrets-sync attach
+```
+
+This command:
+
+1. Detects the current repository with `gh`
+2. Lets you select one or more secrets from your config
+3. Saves that repository into those secrets
+4. Syncs the selected secrets immediately to that repository
+
+#### Edit without exposing the current secret value
+
+```bash
+gh secrets-sync edit --name NPM_TOKEN
+```
+
+When editing interactively, the current value stays masked, while the current repository list is shown as a pre-filled comma-separated value.
 
 ### Options
 

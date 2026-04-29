@@ -1,8 +1,9 @@
-package update
+package edit
 
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/urfave/cli/v3"
@@ -12,9 +13,9 @@ import (
 )
 
 const (
-	name      = "update"
-	usage     = "Update an existing secret in the config"
-	usageText = "gh secrets-sync update [--name <name>] [--value <value>] [--repos <owner/repo>,...]\n\nUpdates an existing secret entry in the local config file. All flags are\noptional – if --name is omitted you will be prompted to pick from a list of\nconfigured secrets.\n\nOnly the fields you supply are changed: omit --value to keep the current\nvalue, omit --repos to keep the current repository list. At least one of\n--value or --repos must be provided.\n\nExample:\n   gh secrets-sync update --name MY_TOKEN --value newvalue\n   gh secrets-sync update --name MY_TOKEN --repos myorg/api,myorg/web"
+	name      = "edit"
+	usage     = "Edit an existing secret in the config"
+	usageText = "gh secrets-sync edit [--name <name>] [--value <value>] [--repos <owner/repo>,...]\n\nEdits an existing secret entry in the local config file. All flags are\noptional – if --name is omitted you will be prompted to pick from a list of\nconfigured secrets.\n\nWhen --value or --repos are omitted, the current settings are shown in the\nprompts. Secret values stay masked by default, while repositories are shown as\na pre-filled comma-separated list. Repositories may be left empty so the secret\nis stored without sync targets.\n\nExample:\n   gh secrets-sync edit --name MY_TOKEN --value newvalue\n   gh secrets-sync edit --name MY_TOKEN --repos myorg/api,myorg/web"
 )
 
 // New returns the CLI subcommand for updating an existing secret in the config.
@@ -64,25 +65,41 @@ func run(_ context.Context, cmd *cli.Command) error {
 		}
 	}
 
+	secret, err := findSecret(cfg, name)
+	if err != nil {
+		return err
+	}
+
 	value := cmd.String("value")
-	if value == "" {
-		if err := survey.AskOne(&survey.Password{Message: "New secret value (leave blank to keep current):"}, &value); err != nil {
+	if !cmd.IsSet("value") {
+		if err := survey.AskOne(&survey.Password{
+			Message: "Secret value (current: ****, leave blank to keep):",
+		}, &value); err != nil {
 			return err
 		}
 	}
 
-	repos := cmdutil.SplitRepos(cmd.StringSlice("repos"))
-	if len(repos) == 0 {
+	var repos []string
+	if cmd.IsSet("repos") {
+		rawRepos := cmd.StringSlice("repos")
+		repos = cmdutil.SplitRepos(rawRepos)
+		if len(repos) == 0 {
+			repos = []string{}
+		}
+	} else {
 		var raw string
-		if err := survey.AskOne(&survey.Input{Message: "New repositories (comma-separated, leave blank to keep current):"}, &raw); err != nil {
+		if err := survey.AskOne(&survey.Input{
+			Message: "Repositories (comma-separated, optional):",
+			Default: strings.Join(secret.Repositories, ","),
+		}, &raw); err != nil {
 			return err
 		}
 		repos = cmdutil.SplitRepos([]string{raw})
+		if raw == "" {
+			repos = []string{}
+		}
 	}
 
-	if value == "" && len(repos) == 0 {
-		return fmt.Errorf("provide at least --value or --repos to update")
-	}
 	patch := config.Secret{
 		Value:        value,
 		Repositories: repos,
@@ -113,11 +130,21 @@ func pickSecret(cfg *config.Config) (string, error) {
 
 	var selected string
 	if err := survey.AskOne(&survey.Select{
-		Message: "Select a secret to update:",
+		Message: "Select a secret to edit:",
 		Options: names,
 	}, &selected); err != nil {
 		return "", err
 	}
 
 	return selected, nil
+}
+
+func findSecret(cfg *config.Config, name string) (config.Secret, error) {
+	for _, secret := range cfg.Secrets {
+		if secret.Name == name {
+			return secret, nil
+		}
+	}
+
+	return config.Secret{}, fmt.Errorf("secret %q not found", name)
 }

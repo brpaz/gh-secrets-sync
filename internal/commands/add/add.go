@@ -15,7 +15,7 @@ import (
 const (
 	name      = "add"
 	usage     = "Add a new secret to the config"
-	usageText = "gh secrets-sync add [--name <name>] [--value <value>] [--repos <owner/repo>,...] [--force]\n\nAdds a new secret entry to the local config file. All flags are optional –\nany value not provided via a flag will be prompted for interactively.\n\nRepositories can be supplied as multiple --repos flags or as a single\ncomma-separated list (e.g. --repos owner/repo1,owner/repo2).\n\nUse --force to overwrite a secret that already exists in the config.\n\nExample:\n   gh secrets-sync add --name MY_TOKEN --value s3cr3t --repos myorg/api,myorg/web\n   gh secrets-sync add --name MY_TOKEN --force"
+	usageText = "gh secrets-sync add [--name <name>] [--value <value>] [--repos <owner/repo>,...] [--force]\n\nAdds a new secret entry to the local config file. All flags are optional –\nany value not provided via a flag will be prompted for interactively.\n\nRepositories can be supplied as multiple --repos flags or as a single\ncomma-separated list (e.g. --repos owner/repo1,owner/repo2). When no\nrepositories are provided, you will still be prompted for them, but the prompt\ncan be left blank to save the secret without target repositories. Such secrets\nare skipped by sync until repositories are added later.\n\nUse --force to overwrite a secret that already exists in the config.\n\nExample:\n   gh secrets-sync add --name MY_TOKEN --value s3cr3t --repos myorg/api,myorg/web\n   gh secrets-sync add --name MY_TOKEN --force"
 )
 
 // New returns the CLI subcommand for adding a new secret to the config.
@@ -68,7 +68,7 @@ func run(_ context.Context, cmd *cli.Command) error {
 	repos := cmdutil.SplitRepos(cmd.StringSlice("repos"))
 	if len(repos) == 0 {
 		var raw string
-		if err := survey.AskOne(&survey.Input{Message: "Repositories (comma-separated):"}, &raw, survey.WithValidator(survey.Required)); err != nil {
+		if err := survey.AskOne(&survey.Input{Message: "Repositories (comma-separated, optional):"}, &raw); err != nil {
 			return err
 		}
 		repos = cmdutil.SplitRepos([]string{raw})
@@ -98,6 +98,11 @@ func run(_ context.Context, cmd *cli.Command) error {
 
 	if err := cfg.Save(path); err != nil {
 		return err
+	}
+
+	if len(repos) == 0 {
+		fmt.Fprintf(cmd.Writer, "✓ Secret %q added with no target repositories.\n", name)
+		return nil
 	}
 
 	fmt.Fprintf(cmd.Writer, "✓ Secret %q added for repos: %s\n", name, strings.Join(repos, ", "))
